@@ -1,0 +1,37 @@
+import React from 'react'
+import { Link } from 'react-router-dom'
+
+import YoutubeIcon from './YoutubeIcon'
+
+const TheHeader = () => {
+  return (
+    <header className="z-50 py-3 bg-black-700 border-b border-black-500 sticky top-0">
+      <div className="container flex items-center justify-between">
+        <Link to="/">
+          <YoutubeIcon />
+        </Link>
+        <div className="flex items-center text-sm">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="py-2 px-4 w-[16rem] bg-black-900 outline-none rounded-l-sm"
+          />
+          <button className="px-4 bg-black-600 h-9 rounded-r-sm">
+            <svg
+              viewBox="0 0 24 24"
+              preserveAspectRatio="xMidYMid meet"
+              focusable="false"
+              className="w-4 h-4 fill-current"
+            >
+              <g>
+                <path d="M20.87,20.17l-5.59-5.59C16.35,13.35,17,11.75,17,10c0-3.87-3.13-7-7-7s-7,3.13-7,7s3.13,7,7,7c1.75,0,3.35-0.65,4.58-1.71 l5.59,5.59L20.87,20.17z M10,16c-3.31,0-6-2.69-6-6s2.69-6,6-6s6,2.69,6,6S13.31,16,10,16z"></path>
+              </g>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+  )
+}
+
+export default TheHeader

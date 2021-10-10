@@ -1,0 +1,3 @@
+.container {
+  @apply w-[90%] max-w-screen-2xl mx-auto;
+}
