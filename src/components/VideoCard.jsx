@@ -1,5 +1,10 @@
 import React from 'react'
-import '@utils/types'
+import { Link } from 'react-router-dom'
+
+import { getThumbnailURL } from '@utils/video'
+
+import '@lib/types'
+import { getDateDifference } from '@utils/date'
 
 /**
  *
@@ -9,30 +14,30 @@ import '@utils/types'
 const VideoCard = ({ video, orientation }) => {
   if (orientation === 'side') {
     return (
-      <a className="flex gap-2 text-sm" href={video.url}>
-        <img className="w-32 h-18" src={video.imageURL} />
+      <Link className="flex gap-2 text-sm" to={`/videos/${video._id}`}>
+        <img className="w-32 h-18" src={getThumbnailURL(video.thumbnail)} />
         <div>
           <h3 className="font-semibold leading-none overflow-ellipsis">
             {video.title}
           </h3>
           <p className="text-gray-400">{video.channel}</p>
           <p className="text-gray-400 text-xs">
-            {video.views} views • {video.createdAt}
+            {video.views} views • {getDateDifference(video.createdAt)}
           </p>
         </div>
-      </a>
+      </Link>
     )
   }
 
   return (
-    <a href={video.url}>
-      <img src={video.imageURL} />
+    <Link to={`/videos/${video._id}`}>
+      <img src={getThumbnailURL(video.thumbnail)} />
       <h3 className="text-lg font-semibold tracking-tight">{video.title}</h3>
       <p className="text-gray-400">{video.channel}</p>
       <p className="text-gray-400 text-sm">
-        ${video.views} views • ${video.created_at} ago
+        {video.views} views • {getDateDifference(video.createdAt)} ago
       </p>
-    </a>
+    </Link>
   )
 }
 

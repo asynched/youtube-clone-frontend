@@ -1,45 +1,88 @@
-import React, { useEffect, useRef, useState } from 'react'
-import HomeLayout from '@layouts/HomeLayout'
+import React, { createRef, useEffect, useReducer } from 'react'
+import { useParams } from 'react-router'
 import Player from 'plyr'
-import { VIDEOS } from '@utils/fakeData'
-import VideoCard from '@components/VideoCard'
+
+import HomeLayout from '@layouts/HomeLayout'
+import VideoPagePlayer from '@components/VideoPagePlayer'
+
+import { getVideo, getVideos } from '@services/api/requests'
+import { useMountedFetch } from '@hooks/useMountedFetch'
+import VideoPageRecommendations from '@components/VideoPageRecommendations'
+
+const actions = {
+  SET_PLAYER: 0,
+  SET_VIDEO: 1,
+  SET_VIDEOS: 2,
+}
+
+const initialState = {
+  videos: [],
+  video: null,
+  playerRef: null,
+}
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case actions.SET_PLAYER: {
+      return { ...state, playerRef: action.payload }
+    }
+    case actions.SET_VIDEO: {
+      return { ...state, video: action.payload }
+    }
+    case actions.SET_VIDEOS: {
+      return { ...state, videos: action.payload }
+    }
+  }
+}
 
 const VideoPage = () => {
-  const playerRef = useRef(null)
-  const [player, setPlayer] = useState(null)
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const { video, videos, playerRef } = state
+  const params = useParams()
+
+  useMountedFetch([
+    {
+      initiator: () => getVideo(params.videoId),
+      handler: data => dispatch({ type: actions.SET_VIDEO, payload: data }),
+      dependencies: [params.videoId],
+    },
+    {
+      initiator: getVideos,
+      handler: data => dispatch({ type: actions.SET_VIDEOS, payload: data }),
+      dependencies: [params.videoId],
+    },
+  ])
 
   useEffect(() => {
-    if (playerRef.current) {
-      setPlayer(new Player(playerRef.current))
+    if (playerRef?.current && video) {
+      new Player(playerRef.current, {
+        autoplay: true,
+      })
     }
-  }, [playerRef])
+  }, [video, playerRef])
+
+  if (!video) {
+    return (
+      <HomeLayout>
+        <section className="py-4 container">
+          <p>Loading...</p>
+        </section>
+      </HomeLayout>
+    )
+  }
 
   return (
     <HomeLayout>
-      <section className="py-4 container grid grid-cols-4 gap-8">
-        <div className="col-span-3">
-          <video id="main-video" src="/" ref={playerRef}></video>
-          <h1 className="mt-4 text-xl">Was acquaman really that bad?</h1>
-          <p className="mb-4 text-gray-400">
-            14.091 visualizações • Feb 23, 2021
-          </p>
-          <hr className="border-t border-black-500"></hr>
-          <div className="mt-4">
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum
-              reiciendis dignissimos assumenda possimus enim suscipit
-              reprehenderit exercitationem corporis, fuga corrupti autem
-              inventore unde vel. Minima, dolores, fugit temporibus esse illo
-              maxime consequuntur laudantium enim, suscipit assumenda
-              accusantium voluptatibus! Maiores, assumenda!
-            </p>
-          </div>
-        </div>
-        <div className="grid gap-4">
-          {VIDEOS.map(video => (
-            <VideoCard video={video} orientation="side" />
-          ))}
-        </div>
+      <section
+        className="py-4 container grid lg:grid-cols-4 gap-8"
+        ref={ref =>
+          state.playerRef
+            ? null
+            : dispatch({ type: actions.SET_PLAYER, payload: createRef(ref) })
+        }
+      >
+        <VideoPagePlayer video={video} playerRef={playerRef} />
+        <VideoPageRecommendations videos={videos} />
       </section>
     </HomeLayout>
   )
